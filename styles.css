@@ -98,8 +98,13 @@ input[type="checkbox"] {
 }
 
 #passwordDisplay {
-    margin-top: 20px;
-}
+    margin-top :20px; 
+    font-size :24px; 
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    width: 90%;
+    max-width: 100%;
+ }
 
 #password {
     font-family: 'Roboto Mono', monospace;
