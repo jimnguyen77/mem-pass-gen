@@ -104,6 +104,7 @@ input[type="checkbox"] {
     overflow-wrap: break-word;
     width: 90%;
     max-width: 100%;
+    text-align: center;
  }
 
 #password {
