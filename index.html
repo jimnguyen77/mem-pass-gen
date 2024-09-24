@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Password Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico" />
+  </head>
+  <body>
+    <h1>Memorable Password Generator</h1>
+
+    <label for="wordCount">Number of Words: </label>
+    <input
+      type="range"
+      id="wordCount"
+      min="3"
+      max="15"
+      value="5"
+      oninput="updateWordCount(this.value)"
+    />
+    <span id="wordCountDisplay">5</span><br />
+
+    <label for="separator">Separator: </label>
+    <select id="separator">
+      <option value="symbol">Numbers and Symbols</option>
+      <option value="-">Hyphens</option>
+      <option value=" ">Spaces</option>
+      <option value=".">Periods</option>
+      <option value=",">Commas</option>
+      <option value="_">Underscores</option>
+      <option value="number">Numbers</option></select
+    ><br />
+
+    <label for="capitalize">Capitalize: </label>
+    <input type="checkbox" id="capitalize" checked /><br />
+
+    <label for="fullWords">Use Full Words: </label>
+    <input type="checkbox" id="fullWords" checked /><br />
+
+    <button
+      class="material-button"
+      onclick="generatePassword()"
+      aria-label="Generate Password"
+    >
+      Generate
+    </button>
+
+    <div id="passwordDisplay">
+      <span id="password"></span>
+      <span
+        id="copyButton"
+        class="material-icons"
+        title="Copy to Clipboard"
+        aria-label="Copy Password"
+        >content_copy</span
+      >
+    </div>
+    <div id="copiedMessageDisplay">
+      <span id="copiedMessage">Copied!</span>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
