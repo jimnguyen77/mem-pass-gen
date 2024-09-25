@@ -1,7 +1,7 @@
 To locally start the webserver, you can use:
 
 ```
-python -m http.server 8000
+python3 -m http.server 8000
 ```
 
 But you must start a webserver at a mimimum in order to load the `*.txt` files.
