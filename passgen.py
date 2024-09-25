@@ -36,7 +36,7 @@ def random_separator(separator_type, include_number, include_symbol):
 
 # Add a random suffix to intentionally misspell a word
 def add_random_suffix(word, suffixes):
-    return word + get_random_item(suffixes) if len(word) >= 3 and suffixes else word
+    return word + get_random_item(suffixes) if suffixes else word
 
 # Generate the password based on user settings
 def generate_password(word_list, suffix_list, word_count=5, separator_type="symbol", capitalize=True, full_words=True):
@@ -49,16 +49,22 @@ def generate_password(word_list, suffix_list, word_count=5, separator_type="symb
         print("Error: Not enough valid words to generate the password.")
         return ""
 
-    words = [
-        (get_random_item(valid_words)[:4] if not full_words else get_random_item(valid_words))
-        for _ in range(word_count)
-    ]
+    words = []
+    used_words = set()
+
+    while len(words) < word_count:
+        word = get_random_item(valid_words)
+        if word not in used_words:
+            used_words.add(word)
+            words.append(word[:4] if not full_words else word)
 
     if full_words and suffix_list:
-        words[random.randint(0, len(words) - 1)] = add_random_suffix(get_random_item(words), suffix_list)
+        index_to_misspell = random.randint(0, len(words) - 1)
+        words[index_to_misspell] = add_random_suffix(words[index_to_misspell], suffix_list)
 
     if capitalize:
-        words[random.randint(0, len(words) - 1)] = get_random_item(words).upper()
+        index_to_capitalize = random.randint(0, len(words) - 1)
+        words[index_to_capitalize] = words[index_to_capitalize].upper()
 
     password_parts = []
     include_number = False

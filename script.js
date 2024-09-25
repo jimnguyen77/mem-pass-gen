@@ -1,13 +1,13 @@
 let wordList = [];
 let suffixList = [];
 
-// Load a list from a local file
-async function loadList(filePath) {
+// Load a list from a local file with an optional minimum length filter
+async function loadList(filePath, minLength = 3) {
   try {
     const response = await fetch(filePath);
     if (!response.ok) throw new Error(`Failed to fetch ${filePath}`);
     const text = await response.text();
-    return text.split("\n").map(item => item.trim()).filter(item => item.length > 2);
+    return text.split("\n").map(item => item.trim()).filter(item => item.length >= minLength);
   } catch (error) {
     console.error(`Error loading ${filePath}:`, error);
     return [];
@@ -16,10 +16,8 @@ async function loadList(filePath) {
 
 // Initialize word and suffix lists
 async function initializeLists() {
-  [wordList, suffixList] = await Promise.all([
-    loadList("wordlist.txt"),
-    loadList("suffix.txt")
-  ]);
+  wordList = await loadList("wordlist.txt"); // Apply minimum length of 3 by default
+  suffixList = await loadList("suffix.txt", 0); // No minimum length for suffixes
 }
 
 initializeLists();
