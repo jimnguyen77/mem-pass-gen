@@ -119,6 +119,11 @@ input[type="checkbox"] {
     margin-left: 10px;
 }
 
+#characterCountDisplay {
+    display: none;
+    margin-top: 20px;
+}
+
 #copiedMessageDisplay {
     margin-top: 20px;
 }

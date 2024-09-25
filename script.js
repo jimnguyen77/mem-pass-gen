@@ -82,6 +82,8 @@ function generatePassword() {
   const separatorType = document.getElementById("separator").value;
   const capitalize = document.getElementById("capitalize").checked;
   const fullWords = document.getElementById("fullWords").checked;
+  
+  document.getElementById('copiedMessage').style.display = 'none';
 
   let words = [];
   for (let i = 0; i < wordCount; i++) {
@@ -128,8 +130,14 @@ function generatePassword() {
   const passwordHtml = passwordPartsHtml.join("");
   const passwordText = passwordPartsText.join("");
 
-  document.getElementById("password").innerHTML = passwordHtml;
+  document.getElementById('password').innerHTML = passwordHtml;
 
+  const characterCount = document.getElementById('characterCount');
+  characterCount.innerText = passwordText.length;
+
+  const characterCountDisplay = document.getElementById('characterCountDisplay');
+  characterCountDisplay.style.display = 'inline';
+  
   // Show the copy button after generating the password
   const copyButton = document.getElementById("copyButton");
   copyButton.style.display = "inline-block";
