@@ -2,7 +2,6 @@
 import argparse
 import random
 
-
 # Load a list from a local file
 def load_list_from_file(file_path):
     try:
@@ -14,39 +13,41 @@ def load_list_from_file(file_path):
         print(f"Error: {file_path} not found.")
         return []
 
-
 # Get a random item from a list
 def get_random_item(lst):
     return random.choice(lst)
-
 
 # Generate a random symbol
 def random_symbol():
     symbols = "!@#$%^&*()/.,-_]["
     return get_random_item(symbols)
 
-
 # Generate a random number
 def random_number():
     return str(random.randint(0, 9))
 
-
 # Choose a random separator based on type
-def random_separator(separator_type):
+def random_separator(separator_type, include_number, include_symbol):
     if separator_type == "number":
         return random_number()
     elif separator_type == "symbol":
-        return get_random_item([random_number(), random_symbol()])
+        # Ensure at least one number and one symbol
+        if not include_number and not include_symbol:
+            return get_random_item([random_number(), random_symbol()])
+        elif not include_number:
+            return random_number()
+        elif not include_symbol:
+            return random_symbol()
+        else:
+            return get_random_item([random_number(), random_symbol()])
     else:
         return separator_type
-
 
 # Add a random suffix to intentionally misspell a word
 def add_random_suffix(word, suffixes):
     if len(word) >= 3 and suffixes:
         return word + get_random_item(suffixes)
     return word
-
 
 # Generate the password based on user settings
 def generate_password(
@@ -89,10 +90,28 @@ def generate_password(
 
     # Construct the password with separators
     password_parts = []
+    
+    include_number = False
+    include_symbol = False
+    
     for i in range(len(words)):
         password_parts.append(words[i])
+        
         if i < len(words) - 1:
-            password_parts.append(random_separator(separator_type))
+            separator = random_separator(separator_type, include_number, include_symbol)
+            
+            # Update flags based on separator type
+            if separator.isdigit():
+                include_number = True
+            else:
+                include_symbol = True
+            
+            password_parts.append(separator)
+
+    # Ensure at least one number and one symbol are included
+    if separator_type == "symbol" and (not include_number or not include_symbol):
+        missing_separator = random_number() if not include_number else random_symbol()
+        password_parts[-1] = missing_separator
 
     password = "".join(password_parts)
 
@@ -163,4 +182,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+   main()

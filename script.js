@@ -13,7 +13,6 @@ async function loadWordList() {
       .split("\n")
       .map((word) => word.trim())
       .filter((word) => word.length > 2); // Ensure words are at least 3 characters
-    //console.log("Word list loaded:", wordList);
   } catch (error) {
     console.error("Error loading word list:", error);
   }
@@ -31,7 +30,6 @@ async function loadSuffixList() {
       .split("\n")
       .map((suffix) => suffix.trim())
       .filter((suffix) => suffix.length > 0); // Ensure non-empty suffixes
-    //console.log("Suffix list loaded:", suffixList);
   } catch (error) {
     console.error("Error loading suffix list:", error);
   }
@@ -57,11 +55,20 @@ function randomNumber() {
   return Math.floor(Math.random() * 10);
 }
 
-function randomSeparator(separatorType) {
+function randomSeparator(separatorType, includeNumber, includeSymbol) {
   if (separatorType === "number") {
     return randomNumber().toString();
   } else if (separatorType === "symbol") {
-    return Math.random() < 0.5 ? randomNumber().toString() : randomSymbol();
+    // Ensure at least one number and one symbol
+    if (!includeNumber && !includeSymbol) {
+      return Math.random() < 0.5 ? randomNumber().toString() : randomSymbol();
+    } else if (!includeNumber) {
+      return randomNumber().toString();
+    } else if (!includeSymbol) {
+      return randomSymbol();
+    } else {
+      return Math.random() < 0.5 ? randomNumber().toString() : randomSymbol();
+    }
   } else {
     return separatorType;
   }
@@ -112,12 +119,20 @@ function generatePassword() {
   let passwordPartsHtml = [];
   let passwordPartsText = [];
 
+  let includeNumber = false;
+  let includeSymbol = false;
+
   for (let i = 0; i < words.length; i++) {
     passwordPartsHtml.push(words[i]);
     passwordPartsText.push(words[i]);
 
     if (i < words.length - 1) {
-      const separator = randomSeparator(separatorType);
+      const separator = randomSeparator(separatorType, includeNumber, includeSymbol);
+
+      // Update flags based on separator type
+      if (!isNaN(separator)) includeNumber = true;
+      else includeSymbol = true;
+
       passwordPartsHtml.push(
         `<span class='${
           isNaN(separator) ? "symbol" : "number"
@@ -127,41 +142,66 @@ function generatePassword() {
     }
   }
 
-  const passwordHtml = passwordPartsHtml.join("");
-  const passwordText = passwordPartsText.join("");
+   // Ensure at least one number and one symbol are included
+   if (separatorType === "symbol" && (!includeNumber || !includeSymbol)) {
+     const lastSeparatorIndexHtml =
+       passwordPartsHtml.length - (words.length - passwordPartsText.length);
+     const lastSeparatorIndexText =
+       passwordPartsText.length - (words.length - passwordPartsText.length);
 
-  document.getElementById('password').innerHTML = passwordHtml;
+     const missingSeparator =
+       !includeNumber ? randomNumber().toString() : randomSymbol();
 
-  const characterCount = document.getElementById('characterCount');
-  characterCount.innerText = passwordText.length;
+     passwordPartsHtml[lastSeparatorIndexHtml] =
+       `<span class='${
+         isNaN(missingSeparator) ? "symbol" : "number"
+       }'>${missingSeparator}</span>`;
+     passwordPartsText[lastSeparatorIndexText] =
+       missingSeparator;
+   }
 
-  const characterCountDisplay = document.getElementById('characterCountDisplay');
-  characterCountDisplay.style.display = 'inline';
-  
-  // Show the copy button after generating the password
-  const copyButton = document.getElementById("copyButton");
-  copyButton.style.display = "inline-block";
+   const passwordHtml = passwordPartsHtml.join("");
+   const passwordText = passwordPartsText.join("");
+
+   document.getElementById('password').innerHTML = passwordHtml;
+
+   const characterCount = document.getElementById('characterCount');
+   characterCount.innerText = passwordText.length;
+
+   const characterCountDisplay =
+     document.getElementById('characterCountDisplay');
+   characterCountDisplay.style.display = 'inline';
+
+   // Show the copy button after generating the password
+   const copyButton =
+     document.getElementById("copyButton");
+   copyButton.style.display =
+     "inline-block";
 
    // Add event listener for copy button
-   copyButton.onclick = () => {
-     if (navigator.clipboard?.writeText) {
-       navigator.clipboard.writeText(passwordText).then(() => {
-         showCopiedMessage();
-       }).catch((err) => {
-         console.error('Failed to copy text: ', err);
+   copyButton.onclick =
+     () => {
+       if (navigator.clipboard?.writeText) {
+         navigator.clipboard.writeText(passwordText).then(() => {
+           showCopiedMessage();
+         }).catch((err) => {
+           console.error('Failed to copy text: ', err);
+           fallbackCopyTextToClipboard(passwordText);
+         });
+       } else {
          fallbackCopyTextToClipboard(passwordText);
-       });
-     } else {
-       fallbackCopyTextToClipboard(passwordText);
-     }
-   };
+       }
+     };
 }
 
 // Fallback function for copying text using execCommand
 function fallbackCopyTextToClipboard(text) {
-   const textarea = document.createElement('textarea');
-   textarea.value = text;
-   textarea.style.position = 'fixed'; // Prevent scrolling to bottom of page in MS Edge.
+   const textarea =
+     document.createElement('textarea');
+   textarea.value =
+     text;
+   textarea.style.position =
+     'fixed'; // Prevent scrolling to bottom of page in MS Edge.
    document.body.appendChild(textarea);
    textarea.focus();
    textarea.select();
@@ -175,9 +215,12 @@ function fallbackCopyTextToClipboard(text) {
 }
 
 function showCopiedMessage() {
-   const copiedMessage = document.getElementById('copiedMessage');
-   copiedMessage.style.display = 'inline';
+   const copiedMessage =
+     document.getElementById('copiedMessage');
+   copiedMessage.style.display =
+     'inline';
    setTimeout(() => {
-     copiedMessage.style.display = 'none';
-   }, 2000); // Hide after 2 seconds
+     copiedMessage.style.display =
+       'none';
+   },2000); // Hide after2 seconds
 }
