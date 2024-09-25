@@ -96,6 +96,7 @@ def generate_password(
 
     password = "".join(password_parts)
 
+    print(f"Character Count: {len(password)}")
     print(f"Generated Password: {password}")
     return password
 
