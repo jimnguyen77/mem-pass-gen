@@ -136,17 +136,22 @@ function generatePassword() {
 
   // Add event listener for copy button
   copyButton.onclick = () => {
-    navigator.clipboard
-      .writeText(passwordText)
-      .then(() => {
-        const copiedMessage = document.getElementById("copiedMessage");
-        copiedMessage.style.display = "inline";
-        setTimeout(() => {
-          copiedMessage.style.display = "none";
-        }, 2000); // Hide after 2 seconds
-      })
-      .catch((err) => {
-        console.error("Failed to copy text: ", err);
-      });
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard
+        .writeText(passwordText)
+        .then(() => {
+          const copiedMessage = document.getElementById("copiedMessage");
+          copiedMessage.style.display = "inline";
+          setTimeout(() => {
+            copiedMessage.style.display = "none";
+          }, 2000); // Hide after 2 seconds
+        })
+        .catch((err) => {
+          console.error("Failed to copy text: ", err);
+        });
+    } else {
+      console.error("Clipboard API not supported or not available.");
+      alert("Copying to clipboard is not supported in this environment.");
+    }
   };
 }
