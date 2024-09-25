@@ -1,42 +1,28 @@
 let wordList = [];
 let suffixList = [];
 
-// Load word list from a local file
-async function loadWordList() {
+// Load a list from a local file
+async function loadList(filePath) {
   try {
-    const response = await fetch("wordlist.txt");
-    if (!response.ok) {
-      throw new Error("Failed to fetch word list");
-    }
+    const response = await fetch(filePath);
+    if (!response.ok) throw new Error(`Failed to fetch ${filePath}`);
     const text = await response.text();
-    wordList = text
-      .split("\n")
-      .map((word) => word.trim())
-      .filter((word) => word.length > 2); // Ensure words are at least 3 characters
+    return text.split("\n").map(item => item.trim()).filter(item => item.length > 2);
   } catch (error) {
-    console.error("Error loading word list:", error);
+    console.error(`Error loading ${filePath}:`, error);
+    return [];
   }
 }
 
-// Load suffix list from a local file
-async function loadSuffixList() {
-  try {
-    const response = await fetch("suffix.txt");
-    if (!response.ok) {
-      throw new Error("Failed to fetch suffix list");
-    }
-    const text = await response.text();
-    suffixList = text
-      .split("\n")
-      .map((suffix) => suffix.trim())
-      .filter((suffix) => suffix.length > 0); // Ensure non-empty suffixes
-  } catch (error) {
-    console.error("Error loading suffix list:", error);
-  }
+// Initialize word and suffix lists
+async function initializeLists() {
+  [wordList, suffixList] = await Promise.all([
+    loadList("wordlist.txt"),
+    loadList("suffix.txt")
+  ]);
 }
 
-loadWordList();
-loadSuffixList();
+initializeLists();
 
 function updateWordCount(value) {
   document.getElementById("wordCountDisplay").innerText = value;
@@ -52,36 +38,27 @@ function randomSymbol() {
 }
 
 function randomNumber() {
-  return Math.floor(Math.random() * 10);
+  return Math.floor(Math.random() * 10).toString();
 }
 
 function randomSeparator(separatorType, includeNumber, includeSymbol) {
   if (separatorType === "number") {
-    return randomNumber().toString();
+    return randomNumber();
   } else if (separatorType === "symbol") {
-    // Ensure at least one number and one symbol
     if (!includeNumber && !includeSymbol) {
-      return Math.random() < 0.5 ? randomNumber().toString() : randomSymbol();
-    } else if (!includeNumber) {
-      return randomNumber().toString();
-    } else if (!includeSymbol) {
-      return randomSymbol();
-    } else {
-      return Math.random() < 0.5 ? randomNumber().toString() : randomSymbol();
+      return Math.random() < 0.5 ? randomNumber() : randomSymbol();
     }
-  } else {
-    return separatorType;
+    return !includeNumber ? randomNumber() : !includeSymbol ? randomSymbol() : Math.random() < 0.5 ? randomNumber() : randomSymbol();
   }
+  return separatorType;
 }
 
 function addRandomSuffix(word) {
-  if (suffixList.length === 0) {
+  if (!suffixList.length) {
     console.error("Suffix list is empty.");
     return word;
   }
-
-  const randomSuffix = getRandomItem(suffixList);
-  return word + randomSuffix;
+  return word + getRandomItem(suffixList);
 }
 
 function generatePassword() {
@@ -89,28 +66,19 @@ function generatePassword() {
   const separatorType = document.getElementById("separator").value;
   const capitalize = document.getElementById("capitalize").checked;
   const fullWords = document.getElementById("fullWords").checked;
-  
+
   document.getElementById('copiedMessage').style.display = 'none';
 
-  let words = [];
-  for (let i = 0; i < wordCount; i++) {
+  const words = Array.from({ length: wordCount }, () => {
     let word = getRandomItem(wordList);
+    return fullWords ? word : word.slice(0, 4);
+  });
 
-    // Truncate the word if fullWords is false
-    if (!fullWords) {
-      word = word.slice(0, 4);
-    }
-
-    words.push(word);
-  }
-
-  // Intentionally misspell one word by adding a random suffix, only if fullWords is true
   if (fullWords && words.length > 0) {
     const indexToMisspell = Math.floor(Math.random() * words.length);
     words[indexToMisspell] = addRandomSuffix(words[indexToMisspell]);
   }
 
-  // Capitalize one word if required
   if (capitalize && words.length > 0) {
     const indexToCapitalize = Math.floor(Math.random() * words.length);
     words[indexToCapitalize] = words[indexToCapitalize].toUpperCase();
@@ -129,20 +97,14 @@ function generatePassword() {
     if (i < words.length - 1) {
       const separator = randomSeparator(separatorType, includeNumber, includeSymbol);
 
-      // Update flags based on separator type
       if (!isNaN(separator)) includeNumber = true;
       else includeSymbol = true;
 
-      passwordPartsHtml.push(
-        `<span class='${
-          isNaN(separator) ? "symbol" : "number"
-        }'>${separator}</span>`
-      );
+      passwordPartsHtml.push(`<span class='${isNaN(separator) ? "symbol" : "number"}'>${separator}</span>`);
       passwordPartsText.push(separator);
     }
   }
 
-   // Ensure at least one number and one symbol are included
    if (separatorType === "symbol" && (!includeNumber || !includeSymbol)) {
      const lastSeparatorIndexHtml =
        passwordPartsHtml.length - (words.length - passwordPartsText.length);
@@ -150,12 +112,10 @@ function generatePassword() {
        passwordPartsText.length - (words.length - passwordPartsText.length);
 
      const missingSeparator =
-       !includeNumber ? randomNumber().toString() : randomSymbol();
+       !includeNumber ? randomNumber() : randomSymbol();
 
      passwordPartsHtml[lastSeparatorIndexHtml] =
-       `<span class='${
-         isNaN(missingSeparator) ? "symbol" : "number"
-       }'>${missingSeparator}</span>`;
+       `<span class='${isNaN(missingSeparator) ? "symbol" : "number"}'>${missingSeparator}</span>`;
      passwordPartsText[lastSeparatorIndexText] =
        missingSeparator;
    }
@@ -165,29 +125,16 @@ function generatePassword() {
 
    document.getElementById('password').innerHTML = passwordHtml;
 
-   const characterCount = document.getElementById('characterCount');
-   characterCount.innerText = passwordText.length;
+   document.getElementById('characterCount').innerText = passwordText.length;
+   document.getElementById('characterCountDisplay').style.display = 'inline';
 
-   const characterCountDisplay =
-     document.getElementById('characterCountDisplay');
-   characterCountDisplay.style.display = 'inline';
+   const copyButton = document.getElementById("copyButton");
+   copyButton.style.display = "inline-block";
 
-   // Show the copy button after generating the password
-   const copyButton =
-     document.getElementById("copyButton");
-   copyButton.style.display =
-     "inline-block";
-
-   // Add event listener for copy button
    copyButton.onclick =
      () => {
        if (navigator.clipboard?.writeText) {
-         navigator.clipboard.writeText(passwordText).then(() => {
-           showCopiedMessage();
-         }).catch((err) => {
-           console.error('Failed to copy text: ', err);
-           fallbackCopyTextToClipboard(passwordText);
-         });
+         navigator.clipboard.writeText(passwordText).then(() => showCopiedMessage()).catch(err => fallbackCopyTextToClipboard(passwordText));
        } else {
          fallbackCopyTextToClipboard(passwordText);
        }
@@ -219,8 +166,5 @@ function showCopiedMessage() {
      document.getElementById('copiedMessage');
    copiedMessage.style.display =
      'inline';
-   setTimeout(() => {
-     copiedMessage.style.display =
-       'none';
-   },2000); // Hide after2 seconds
+   setTimeout(() => copiedMessage.style.display = 'none',2000); // Hide after2 seconds
 }
