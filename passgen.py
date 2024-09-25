@@ -19,7 +19,7 @@ def get_random_item(lst):
 
 # Generate a random symbol
 def random_symbol():
-    symbols = "!@#$%^&*()/.,-_]["
+    symbols = "!@#$%^&*()/.,-_][:=+~><}{?"
     return get_random_item(symbols)
 
 # Generate a random number

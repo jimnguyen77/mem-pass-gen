@@ -47,7 +47,7 @@ function getRandomItem(arr) {
 }
 
 function randomSymbol() {
-  const symbols = "!@#$%^&*()/.,-_][";
+  const symbols = "!@#$%^&*()/.,-_][:=+~><}{?";
   return getRandomItem(symbols.split(""));
 }
 
