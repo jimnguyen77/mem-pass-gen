@@ -21,7 +21,7 @@ cp wordlist-bip39.sample.txt wordlist.txt && cp suffix.sample.txt suffix.txt
 
 It is strongly encouraged that you use your own dictionary file (`wordlist.txt`), and not any publicly available one.  I'm providing a few only as examples.
 
-See it in action (but please don't solely use this, create your own `wordlist.txt` and `suffix.txt` files.): https://password-gen-vnub.onrender.com/
+See it in action (but please don't solely use this, create your own `wordlist.txt` and `suffix.txt` files): https://password-gen-vnub.onrender.com/
 
 Inspired by:
 - 1password's "memorable" password generator
