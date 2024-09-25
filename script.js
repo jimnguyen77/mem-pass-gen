@@ -134,24 +134,42 @@ function generatePassword() {
   const copyButton = document.getElementById("copyButton");
   copyButton.style.display = "inline-block";
 
-  // Add event listener for copy button
-  copyButton.onclick = () => {
-    if (navigator.clipboard?.writeText) {
-      navigator.clipboard
-        .writeText(passwordText)
-        .then(() => {
-          const copiedMessage = document.getElementById("copiedMessage");
-          copiedMessage.style.display = "inline";
-          setTimeout(() => {
-            copiedMessage.style.display = "none";
-          }, 2000); // Hide after 2 seconds
-        })
-        .catch((err) => {
-          console.error("Failed to copy text: ", err);
-        });
-    } else {
-      console.error("Clipboard API not supported or not available.");
-      alert("Copying to clipboard is not supported in this environment.");
-    }
-  };
+   // Add event listener for copy button
+   copyButton.onclick = () => {
+     if (navigator.clipboard?.writeText) {
+       navigator.clipboard.writeText(passwordText).then(() => {
+         showCopiedMessage();
+       }).catch((err) => {
+         console.error('Failed to copy text: ', err);
+         fallbackCopyTextToClipboard(passwordText);
+       });
+     } else {
+       fallbackCopyTextToClipboard(passwordText);
+     }
+   };
+}
+
+// Fallback function for copying text using execCommand
+function fallbackCopyTextToClipboard(text) {
+   const textarea = document.createElement('textarea');
+   textarea.value = text;
+   textarea.style.position = 'fixed'; // Prevent scrolling to bottom of page in MS Edge.
+   document.body.appendChild(textarea);
+   textarea.focus();
+   textarea.select();
+   try {
+     document.execCommand('copy');
+     showCopiedMessage();
+   } catch (err) {
+     console.error('Fallback: Oops, unable to copy', err);
+   }
+   document.body.removeChild(textarea);
+}
+
+function showCopiedMessage() {
+   const copiedMessage = document.getElementById('copiedMessage');
+   copiedMessage.style.display = 'inline';
+   setTimeout(() => {
+     copiedMessage.style.display = 'none';
+   }, 2000); // Hide after 2 seconds
 }
