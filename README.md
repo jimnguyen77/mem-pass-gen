@@ -16,7 +16,7 @@ python3 passgen.py
 > You are required to provide both a `wordlist.txt` and a `suffix.txt` file in order to use this generator.  You can use the provided examples by copying them over:
 
 ```
-cp wordlist-bip39.txt wordlist.txt && cp suffix.sample.txt suffix.txt
+cp wordlist-bip39.sample.txt wordlist.txt && cp suffix.sample.txt suffix.txt
 ```
 
 It is strongly encouraged that you use your own dictionary file (`wordlist.txt`), and not any publicly available one.  I'm providing a few only as examples.
